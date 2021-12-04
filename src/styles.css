@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  height: 1px;
+  background-color: #333;
+}
+
+#phaser {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#content {
+  border-radius: 8px;
+}

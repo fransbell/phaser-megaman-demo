@@ -1,0 +1,19 @@
+{
+  "name": "phaser-starter",
+  "version": "1.0.0",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel"
+  },
+  "dependencies": {
+    "parcel": "^2.0.1",
+    "phaser": "^3.55.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.3.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": ""
+}
