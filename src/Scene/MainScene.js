@@ -1,8 +1,9 @@
 import Phaser from "phaser"
 import Player from "./Player"
-import Map01 from "./Map01"
 
 import Platformer2D from "./Behaviors/Plarformer2D"
+
+import { lerp, clamp } from "../Utils/utils"
 
 const sprite = {
   player: require("../img/sheet.png"),
@@ -23,42 +24,25 @@ class MainScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.image("tile", sprite.tile)
     this.load.image("tileset", sprite.tileset)
+    this.load.tilemapTiledJSON("level01", require("../Map/map_01.json"))
   }
 
   // create method
   create = () => {
-    const level = [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 4, 5, 4, 0, 0, 0, 0],
-      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-      [5, 4, 4, 4, 5, 1, 5, 4, 4, 4, 5],
-    ]
+    const map = this.make.tilemap({ key: "level01" })
 
-    const map = this.make.tilemap({
-      data: level,
-      tileWidth: 16,
-      tileHeight: 16,
-    })
+    const tileset = map.addTilesetImage("tileset")
+    map.createLayer("back", tileset, 0, 0).setCullPadding(16, 16)
+    const layer = map
+      .createLayer("tile", tileset, 0, 0)
+      .setCollisionBetween(1, 39)
+      .setCullPadding(16, 16)
 
-    const tile = map.addTilesetImage("tileset")
+    this.player = new Player(this, 32, 0)
+    this.player.setCollideWorldBounds(true)
+    this.physics.world.setBounds(0, 0, 1024, 480)
 
-    const layer = map.createLayer(0, tile, 0, 0)
-    layer.setSkipCull(true).setCollisionBetween(1, 48)
-
-    this.player = new Player(this, 32, 200)
     this.physics.add.collider(this.player, layer)
 
     this.cameras.main.setOrigin(0, 0)
@@ -69,17 +53,24 @@ class MainScene extends Phaser.Scene {
     this.input = {
       left: this.input.keyboard.addKey(Keycode.LEFT),
       right: this.input.keyboard.addKey(Keycode.RIGHT),
-      jump: this.input.keyboard.addKey(Keycode.UP),
+      jump: this.input.keyboard.addKey(Keycode.SPACE),
+      shoot: this.input.keyboard.addKey(Keycode.Z),
     }
-
-    console.log(this.physics)
+    console.log(lerp(0, 360, 0.025))
   }
   // update method
   update = (time, delta) => {
     const input = this.input
     const player = this.player
     // bahavior controller
-    Platformer2D(player, input, delta / 15)
+    Platformer2D(player, input, delta / 15, time)
+    if (player.x > 720 / 4 && player.x < 480) {
+      this.cameras.main.setScroll(player.x - 720 / 4, 0)
+    } else if (player.x > 480) {
+      this.cameras.main.setScroll(480, 0)
+    } else {
+      this.cameras.main.setScroll(0)
+    }
   }
 }
 
